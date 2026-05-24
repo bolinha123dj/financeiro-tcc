@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Configurações — Controle Financeiro</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app-container">
+
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <h2><span>💰</span> Finanças</h2>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html"><span>📊</span> Dashboard</a>
+      <a href="perfil.html"><span>👤</span> Perfil</a>
+      <a href="configuracoes.html" class="active"><span>⚙️</span> Configurações</a>
+      <a href="#" onclick="Api.auth.logout(); return false;"><span>🚪</span> Sair</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar">?</div>
+        <div class="user-details">
+          <div class="name" data-user-name>Carregando...</div>
+          <div class="email" data-user-email></div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <header class="header">
+      <div class="d-flex align-center gap-2">
+        <button class="menu-toggle" onclick="App.toggleSidebar()">☰</button>
+        <h1>Configurações</h1>
+      </div>
+    </header>
+
+    <div class="page-content">
+
+      <div class="card mb-3">
+        <div class="card-header"><h3>🔔 Notificações</h3></div>
+        <div class="card-body">
+          <div class="settings-section">
+            <div class="settings-label">
+              <h4>Alertas de metas</h4>
+              <p>Receba avisos quando estiver próximo de atingir uma meta</p>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="settings-section">
+            <div class="settings-label">
+              <h4>Resumo mensal</h4>
+              <p>Receba um resumo das suas finanças todo início de mês</p>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-3">
+        <div class="card-header"><h3>💾 Dados</h3></div>
+        <div class="card-body">
+          <div class="settings-section">
+            <div class="settings-label">
+              <h4>Exportar dados</h4>
+              <p>Baixe todas as suas transações em formato CSV</p>
+            </div>
+            <button class="btn btn-ghost btn-sm" onclick="exportCSV()">📥 Exportar CSV</button>
+          </div>
+          <div class="settings-section">
+            <div class="settings-label">
+              <h4>Excluir conta</h4>
+              <p style="color:var(--danger)">Remove permanentemente sua conta e todos os dados</p>
+            </div>
+            <button class="btn btn-danger btn-sm" onclick="confirmDeleteAccount()">🗑️ Excluir Conta</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><h3>ℹ️ Sobre o Sistema</h3></div>
+        <div class="card-body">
+          <p class="text-muted" style="font-size:0.9rem;line-height:1.8;">
+            <strong style="color:var(--text-1)">Controle Financeiro Pessoal</strong><br>
+            Versão 1.0.0 — TCC<br><br>
+            Desenvolvido com Node.js, Express, Supabase e JavaScript puro.<br>
+            Autenticação via JWT · Banco de dados PostgreSQL
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<div id="toast-container" class="toast-container"></div>
+
+<script src="js/api.js"></script>
+<script src="js/app.js"></script>
+<script>
+  if (!Api.auth.requireAuth()) window.location.href = 'index.html';
+  document.addEventListener('DOMContentLoaded', () => App.updateUserAvatar());
+
+  async function exportCSV() {
+    try {
+      const txs = await Api.transactions.list();
+      if (!txs.length) { App.showToast('Nenhuma transação para exportar.', 'warning'); return; }
+      const header = 'Data,Descrição,Tipo,Categoria,Valor\n';
+      const rows   = txs.map(t =>
+        `${t.date},"${t.description}",${t.type === 'income' ? 'Receita' : 'Despesa'},${t.category},${t.amount}`
+      ).join('\n');
+      const blob = new Blob([header + rows], { type: 'text/csv;charset=utf-8;' });
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href     = url; a.download = 'transacoes.csv'; a.click();
+      URL.revokeObjectURL(url);
+      App.showToast('Arquivo exportado!', 'success');
+    } catch (err) {
+      App.showToast('Erro ao exportar: ' + err.message, 'error');
+    }
+  }
+
+  function confirmDeleteAccount() {
+    App.confirm({
+      title: '⚠️ Excluir Conta',
+      message: 'Tem certeza? Todos os seus dados serão apagados permanentemente. Esta ação não pode ser desfeita.',
+      confirmText: 'Sim, excluir tudo',
+      danger: true,
+      onConfirm: () => {
+        App.showToast('Funcionalidade disponível em breve.', 'info');
+      }
+    });
+  }
+</script>
+
+<style>
+  .settings-section {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 0; border-bottom: 1px solid var(--border);
+  }
+  .settings-section:last-child { border-bottom: none; }
+  .settings-label h4 { font-size: 0.95rem; font-weight: 600; margin-bottom: 2px; }
+  .settings-label p  { font-size: 0.82rem; color: var(--text-2); }
+  .toggle { position: relative; width: 46px; height: 26px; flex-shrink: 0; }
+  .toggle input { opacity: 0; width: 0; height: 0; }
+  .toggle-slider {
+    position: absolute; inset: 0;
+    background: var(--bg-2); border: 1px solid var(--border-2);
+    border-radius: 100px; cursor: pointer; transition: all var(--transition);
+  }
+  .toggle-slider::before {
+    content: ''; position: absolute;
+    width: 18px; height: 18px; left: 3px; top: 50%;
+    transform: translateY(-50%);
+    background: var(--text-3); border-radius: 50%; transition: all var(--transition);
+  }
+  .toggle input:checked + .toggle-slider { background: var(--accent-glow); border-color: var(--accent); }
+  .toggle input:checked + .toggle-slider::before { transform: translate(20px,-50%); background: var(--accent); }
+</style>
+</body>
+</html>
