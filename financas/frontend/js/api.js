@@ -4,7 +4,7 @@
 
 const Api = (() => {
 
-  const Api_URL  = 'http://localhost:3001/api';
+  const Api_URL  = 'https://financeiro-tcc-backend.onrender.com';
   const TOKEN_KEY = 'cf_token';
   const USER_KEY  = 'cf_user';
 
