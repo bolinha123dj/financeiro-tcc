@@ -1,3 +1,12 @@
+const Api = (() => {
+  const API_URL = 'https://financeiro-tcc-backend.onrender.com/api';
+  const TOKEN_KEY = 'cf_token';
+  const USER_KEY  = 'cf_user';
+
+  const token = {
+    get:    () => localStorage.getItem(TOKEN_KEY),
+    set:    (t) => localStorage.setItem(TOKEN_KEY, t),
+    remove: () => localStorage.removeItem(TOKEN_KEY),
   };
 
   const userCache = {
@@ -45,33 +54,39 @@
       const data = await request('/auth/profile', { method: 'PUT', body: JSON.stringify(payload) });
       if (data.user) userCache.set(data.user); return data;
     },
-    async changePassword(currentPassword, newPassword) { return request('/auth/password', { method: 'PUT', body: JSON.stringify({ currentPassword, newPassword }) }); },
-    isLoggedIn()        { return !!token.get(); },
-    requireAuth()       { if (!token.get()) { window.location.href = 'index.html'; return false; } return true; },
-    redirectIfLoggedIn(){ if (token.get()) window.location.href = 'dashboard.html'; },
-    getCachedUser()     { return userCache.get(); },
+    async changePassword(currentPassword, newPassword) {
+      return request('/auth/password', { method: 'PUT', body: JSON.stringify({ currentPassword, newPassword }) });
+    },
+    isLoggedIn()         { return !!token.get(); },
+    requireAuth()        { if (!token.get()) { window.location.href = 'index.html'; return false; } return true; },
+    redirectIfLoggedIn() { if (token.get()) window.location.href = 'dashboard.html'; },
+    getCachedUser()      { return userCache.get(); },
   };
 
   const transactions = {
     async list(filters = {}) {
       const params = new URLSearchParams();
       Object.entries(filters).forEach(([k, v]) => { if (v !== undefined && v !== '') params.set(k, v); });
-      const qs = params.toString() ? `?${params}` : ''; return request(`/transactions${qs}`);
+      const qs = params.toString() ? `?${params}` : '';
+      return request(`/transactions${qs}`);
     },
     async summary(month, year) {
-      const params = new URLSearchParams(); if (month) params.set('month', month); if (year) params.set('year', year);
-      const qs = params.toString() ? `?${params}` : ''; return request(`/transactions/summary${qs}`);
+      const params = new URLSearchParams();
+      if (month) params.set('month', month);
+      if (year) params.set('year', year);
+      const qs = params.toString() ? `?${params}` : '';
+      return request(`/transactions/summary${qs}`);
     },
-    async create(payload)     { return request('/transactions',      { method: 'POST',   body: JSON.stringify(payload) }); },
-    async update(id, payload) { return request(`/transactions/${id}`,{ method: 'PUT',    body: JSON.stringify(payload) }); },
-    async remove(id)          { return request(`/transactions/${id}`,{ method: 'DELETE' }); },
+    async create(payload)     { return request('/transactions',       { method: 'POST',   body: JSON.stringify(payload) }); },
+    async update(id, payload) { return request(`/transactions/${id}`, { method: 'PUT',    body: JSON.stringify(payload) }); },
+    async remove(id)          { return request(`/transactions/${id}`, { method: 'DELETE' }); },
   };
 
   const goals = {
     async list()              { return request('/goals'); },
-    async create(payload)     { return request('/goals',      { method: 'POST',   body: JSON.stringify(payload) }); },
-    async update(id, payload) { return request(`/goals/${id}`,{ method: 'PUT',    body: JSON.stringify(payload) }); },
-    async remove(id)          { return request(`/goals/${id}`,{ method: 'DELETE' }); },
+    async create(payload)     { return request('/goals',       { method: 'POST',   body: JSON.stringify(payload) }); },
+    async update(id, payload) { return request(`/goals/${id}`, { method: 'PUT',    body: JSON.stringify(payload) }); },
+    async remove(id)          { return request(`/goals/${id}`, { method: 'DELETE' }); },
   };
 
   return { auth, transactions, goals };
