@@ -1,12 +1,19 @@
 require('dotenv').config();
 const express = require('express');
 const cors    = require('cors');
-
 const app = express();
 
 /* ── Middleware ─────────────────────────────────────────── */
 app.use(cors({
-  origin: ['http://localhost:5500', 'http://127.0.0.1:5500', 'http://localhost:3000', 'http://127.0.0.1:3000'],
+  origin: [
+    'http://localhost:5500',
+    'http://127.0.0.1:5500',
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3001',
+    'https://financeiro-tcc-gleison.vercel.app',
+  ],
   credentials: true,
 }));
 app.use(express.json());
@@ -32,8 +39,10 @@ app.use((err, req, res, next) => {
   console.error('Erro não tratado:', err);
   res.status(500).json({ error: 'Erro interno do servidor.' });
 });
+
 // Mantém o servidor acordado no Render
 require('./keep-alive');
+
 /* ── Start ──────────────────────────────────────────────── */
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {

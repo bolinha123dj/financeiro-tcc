@@ -188,3 +188,5 @@ const App = (() => {
     showLoadingState, showEmptyState,
   };
 })();
+
+window.App = App;
