@@ -32,7 +32,8 @@ app.use((err, req, res, next) => {
   console.error('Erro não tratado:', err);
   res.status(500).json({ error: 'Erro interno do servidor.' });
 });
-
+// Mantém o servidor acordado no Render
+require('./keep-alive');
 /* ── Start ──────────────────────────────────────────────── */
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
