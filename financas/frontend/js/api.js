@@ -1,12 +1,3 @@
-const Api = (() => {
- const Api_URL = 'https://financeiro-tcc-backend.onrender.com/api';
-  const TOKEN_KEY = 'cf_token';
-  const USER_KEY  = 'cf_user';
-
-  const token = {
-    const Api_URL = 'https://financeiro-tcc-backend.onrender.com/api';
-    set:    (t) => localStorage.setItem(TOKEN_KEY, t),
-    remove: () => localStorage.removeItem(TOKEN_KEY),
   };
 
   const userCache = {
@@ -24,7 +15,7 @@ const Api = (() => {
     }
     let res;
     try {
-      res = await fetch(`${Api_URL}${path}`, { ...opts, headers });
+      res = await fetch(`${API_URL}${path}`, { ...opts, headers });
     } catch {
       throw new Error('Não foi possível conectar ao servidor. Verifique se o backend está rodando.');
     }
@@ -86,5 +77,4 @@ const Api = (() => {
   return { auth, transactions, goals };
 })();
 
-// Garante que o navegador reconheça o objeto globalmente
 window.Api = Api;
