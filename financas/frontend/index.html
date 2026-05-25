@@ -21,7 +21,7 @@
         <label for="password">Senha</label>
         <input type="password" id="password" placeholder="Sua senha" autocomplete="current-password">
       </div>
-      <button class="btn btn-primary btn-block" id="loginBtn" onclick="doLogin()">Entrar</button>
+      <button class="btn btn-primary btn-block" id="loginBtn">Entrar</button>
 
       <p class="text-center mt-2">
         Não tem conta? <a href="cadastro.html" class="link">Cadastre-se</a>
@@ -33,12 +33,26 @@
 
   <script src="js/api.js"></script>
   <script src="js/app.js"></script>
+  
   <script>
-    Api.auth.redirectIfLoggedIn();
+    document.addEventListener('DOMContentLoaded', () => {
+      // Executa o redirecionamento caso o usuário já possua um token ativo
+      if (window.Api && window.Api.auth) {
+        window.Api.auth.redirectIfLoggedIn();
+      }
 
-    // Enter no campo password também faz login
-    document.getElementById('password').addEventListener('keydown', e => {
-      if (e.key === 'Enter') doLogin();
+      const loginBtn = document.getElementById('loginBtn');
+      const passwordInput = document.getElementById('password');
+
+      if (loginBtn) {
+        loginBtn.addEventListener('click', doLogin);
+      }
+      
+      if (passwordInput) {
+        passwordInput.addEventListener('keydown', e => {
+          if (e.key === 'Enter') doLogin();
+        });
+      }
     });
 
     async function doLogin() {
@@ -46,20 +60,26 @@
       const password = document.getElementById('password').value;
       const btn      = document.getElementById('loginBtn');
 
-      if (!email || !password) {
-        App.showToast('Preencha email e senha.', 'warning');
+      // Proteção de escopo para evitar o erro de 'not defined'
+      if (!window.App || !window.Api) {
+        alert('Carregando os arquivos do sistema... Tente novamente em 2 segundos.');
         return;
       }
 
-      App.setLoading(btn, true);
+      if (!email || !password) {
+        window.App.showToast('Preencha email e senha.', 'warning');
+        return;
+      }
+
+      window.App.setLoading(btn, true);
       try {
-        await Api.auth.login(email, password);
-        App.showToast('Login realizado!', 'success');
+        await window.Api.auth.login(email, password);
+        window.App.showToast('Login realizado!', 'success');
         setTimeout(() => window.location.href = 'dashboard.html', 400);
       } catch (err) {
-        App.showToast(err.message, 'error');
+        window.App.showToast(err.message, 'error');
       } finally {
-        App.setLoading(btn, false);
+        window.App.setLoading(btn, false);
       }
     }
   </script>
