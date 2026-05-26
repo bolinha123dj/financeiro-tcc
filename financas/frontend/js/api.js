@@ -4,9 +4,7 @@
 
 const Api = (() => {
 
-  const BASE_URL  = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? 'http://localhost:3001/api'
-    : `${window.location.origin}/api`;
+  const BASE_URL  = 'https://financeiro-tcc-backend.onrender.com/api';
   const TOKEN_KEY = 'cf_token';
   const USER_KEY  = 'cf_user';
 
