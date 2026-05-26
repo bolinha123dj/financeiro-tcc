@@ -4,7 +4,9 @@
 
 const Api = (() => {
 
-  const Api_URL  = 'https://financeiro-tcc-backend.onrender.com/api';
+  const BASE_URL  = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:3001/api'
+    : `${window.location.origin}/api`;
   const TOKEN_KEY = 'cf_token';
   const USER_KEY  = 'cf_user';
 
@@ -33,7 +35,7 @@ const Api = (() => {
 
     let res;
     try {
-      res = await fetch(`${Api_URL}${path}`, { ...opts, headers });
+      res = await fetch(`${BASE_URL}${path}`, { ...opts, headers });
     } catch {
       throw new Error('Não foi possível conectar ao servidor. Verifique se o backend está rodando.');
     }
